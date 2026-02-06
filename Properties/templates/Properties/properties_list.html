@@ -1,0 +1,10 @@
+{% extends 'Properties/base.html' %}
+
+{% block content %}
+    <h1>Properties List</h1>
+    <ul>
+        {% for property in properties %}
+            <li>{{ property.title }} - ₦{{ property.price }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
