@@ -1,0 +1,12 @@
+{% extends 'Properties/base.html' %} {% block content %}
+<h1>{{ property.title }}</h1>
+<p>Price: ₦{{ property.price }}</p>
+<p>Description: {{ property.description }}</p>
+<p>Agent: {{ property.agent.username }}</p>
+<p>Address: {{ property.address }}</p>
+{% comment %}
+<!-- <p>Location: {{ property.location }}</p>
+    <p>Bedrooms: {{ property.bedrooms }}</p>
+    <p>Bathrooms: {{ property.bathrooms }}</p>
+    <p>Square Footage: {{ property.square_footage }} sq ft</p> -->
+{% endcomment %} {% endblock %}

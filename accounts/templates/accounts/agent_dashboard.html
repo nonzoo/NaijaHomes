@@ -3,4 +3,7 @@
 {% block content %}
 <h1>Agent Dashboard</h1>
 <p>Welcome {{request.user}} to the agent dashboard! Here you can manage your property listings, view inquiries from potential buyers, and update your profile information.</p>
+<p>Create new property listings or edit existing ones.</p>
+<a href="{% url 'create_property' %}">Create New Property</a>
+
 {% endblock %}

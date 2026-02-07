@@ -4,7 +4,7 @@
     <h1>Properties List</h1>
     <ul>
         {% for property in properties %}
-            <li>{{ property.title }} - ₦{{ property.price }}</li>
+            <a href="{% url 'property_detail' pk=property.id %}"><li>{{ property.title }} - ₦{{ property.price }}</li></a>
         {% endfor %}
     </ul>
 {% endblock %}

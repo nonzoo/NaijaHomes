@@ -1,9 +1,9 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import get_object_or_404, render,redirect
 from .forms import SignUpForm
 from django.contrib.auth import login, authenticate,logout
 from .models import AgentProfile, CustomerProfile
 from django.contrib.auth.models import Group
-
+from django.contrib.auth.decorators import login_required, permission_required
 
 
 
@@ -59,9 +59,18 @@ def logoutView(request):
     logout(request)
     return redirect('login')
 
+
+@login_required
+@permission_required('accounts.view_agentprofile', raise_exception=True)
 def agent_dashboard(request):
-    return render(request, "accounts/agent_dashboard.html")
+    agent = get_object_or_404(AgentProfile, user=request.user)
+    return render(request, "accounts/agent_dashboard.html",{'agent' : agent})
 
 
+
+@login_required
+@permission_required('accounts.view_customerprofile', raise_exception=True)
 def customer_dashboard(request):
-    return render(request, "accounts/customer_dashboard.html")
+    customer = get_object_or_404(CustomerProfile, user=request.user)
+    return render(request, "accounts/customer_dashboard.html", {'customer':customer})
+ 
