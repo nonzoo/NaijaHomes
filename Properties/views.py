@@ -13,6 +13,8 @@ def property_detail(request, pk):
     property = Properties.objects.get(id=pk)
     return render(request, 'Properties/property_detail.html', {'property': property})
 
+
+
 @login_required
 @permission_required('Properties.add_properties', raise_exception=True)
 def create_property(request):
@@ -44,6 +46,13 @@ def update_property(request, pk):
     return render(request, 'Properties/edit_property.html', {'form': form})
 
 
-def property_detail(request, pk):
-    property = Properties.objects.get(id=pk)
-    return render(request, 'Properties/property_detail.html', {'property': property})
+@login_required
+@permission_required('Properties.delete_properties', raise_exception=True)
+def delete_property(request, pk):
+    property = get_object_or_404(Properties, id=pk, agent=request.user)
+
+    if request.method == 'POST':
+        property.delete()
+        return redirect('property_list')
+    
+    return render(request, 'Properties/confirm_delete.html', {'property':property})

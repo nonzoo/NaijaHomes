@@ -6,4 +6,9 @@
 <p>Create new property listings or edit existing ones.</p>
 <a href="{% url 'create_property' %}">Create New Property</a>
 
+<p>My Properties</p>
+{% for property in properties %}
+    <p><a href="{% url 'property_detail' property.id %}">{{ property.title }}</a></p>
+{% endfor %}
+
 {% endblock %}

@@ -4,6 +4,7 @@ from django.contrib.auth import login, authenticate,logout
 from .models import AgentProfile, CustomerProfile
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, permission_required
+from Properties.models import Properties
 
 
 
@@ -40,6 +41,13 @@ def signupView(request):
     return render(request, "accounts/signup.html", {"form": form})
 
 def loginView(request):
+    if request.user.is_authenticated:
+        if request.user.groups.filter(name='Agent').exists():
+            return redirect('agent_dashboard')
+        else:
+            return redirect('customer_dashboard')
+        
+        
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -64,7 +72,8 @@ def logoutView(request):
 @permission_required('accounts.view_agentprofile', raise_exception=True)
 def agent_dashboard(request):
     agent = get_object_or_404(AgentProfile, user=request.user)
-    return render(request, "accounts/agent_dashboard.html",{'agent' : agent})
+    property = Properties.objects.filter(agent=request.user)
+    return render(request, "accounts/agent_dashboard.html",{'agent' : agent, 'properties': property})
 
 
 

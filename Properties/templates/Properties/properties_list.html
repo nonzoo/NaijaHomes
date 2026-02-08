@@ -5,6 +5,7 @@
     <ul>
         {% for property in properties %}
             <a href="{% url 'property_detail' pk=property.id %}"><li>{{ property.title }} - ₦{{ property.price }}</li></a>
+            <p>Agent: {{property.agent}}</p>
         {% endfor %}
     </ul>
 {% endblock %}
