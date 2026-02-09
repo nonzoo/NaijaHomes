@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render,redirect
-from .forms import SignUpForm
+from .forms import SignUpForm,EditProfileForm
 from django.contrib.auth import login, authenticate,logout
 from .models import AgentProfile, CustomerProfile
 from django.contrib.auth.models import Group
@@ -54,10 +54,8 @@ def loginView(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            if user.groups.filter(name='Agent').exists():
-                return redirect('agent_dashboard')
-            else:
-                return redirect('customer_dashboard')
+            return redirect('my_profile')
+          
             
             
     return render(request, 'accounts/login.html')
@@ -82,4 +80,29 @@ def agent_dashboard(request):
 def customer_dashboard(request):
     customer = get_object_or_404(CustomerProfile, user=request.user)
     return render(request, "accounts/customer_dashboard.html", {'customer':customer})
+
+
+@login_required
+def profile_view(request):
+    if request.user.groups.filter(name='Agent').exists():
+        agent = get_object_or_404(AgentProfile, user=request.user)
+        context = {'agent':agent}
+    else:
+        customer = get_object_or_404(CustomerProfile, user=request.user)
+        context = {'customer':customer}
+    return render(request, 'accounts/profile.html',context)
+
+
+def update_edit(request):
+    user_profile = request.user
+    if request.method == 'POST':
+        form = EditProfileForm(request.POST,request.FILES,instance=user_profile)
+        if form.is_valid():
+            form.save()
+            return redirect('my_profile')
+    else:
+        form = EditProfileForm(instance=user_profile)
+
+    return render(request,'accounts/profile_edit.html', {'form': form})
+
  

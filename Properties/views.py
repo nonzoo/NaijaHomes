@@ -3,11 +3,30 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .models import Properties
 from django.contrib.auth.decorators import login_required, permission_required
 from .forms import PropertyForm, PropertyEditForm
+from django.db.models import Q
 
 
 def property_list(request):
-    properties = Properties.objects.all()
-    return render(request, 'Properties/properties_list.html', {'properties': properties})
+    qs = Properties.objects.all()
+
+    q = request.GET.get("q")
+    min_price = request.GET.get("min_price")
+    max_price = request.GET.get("max_price")
+
+    if q:
+        qs = qs.filter(
+            Q(title__icontains=q) |
+            Q(address__icontains=q) |
+            Q(description__icontains=q)
+        )
+
+    if min_price:
+        qs = qs.filter(price__gte=min_price)
+
+    if max_price:
+        qs = qs.filter(price__lte=max_price)
+    return render(request, 'Properties/properties_list.html', {'properties': qs})
+
 
 def property_detail(request, pk):
     property = Properties.objects.get(id=pk)

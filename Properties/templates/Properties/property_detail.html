@@ -4,9 +4,11 @@
 <p>Description: {{ property.description }}</p>
 <p>Agent: {{ property.agent.username }}</p>
 <p>Address: {{ property.address }}</p>
-{% comment %}
-<!-- <p>Location: {{ property.location }}</p>
-    <p>Bedrooms: {{ property.bedrooms }}</p>
-    <p>Bathrooms: {{ property.bathrooms }}</p>
-    <p>Square Footage: {{ property.square_footage }} sq ft</p> -->
-{% endcomment %} {% endblock %}
+<p>Property Type: {{ property.property_type }}</p>
+<p>Bedrooms: {{ property.bedrooms }}</p>
+<p>Bathrooms: {{ property.bathrooms }}</p>
+<p>Square Footage: {{ property.Sqm }} sq ft</p>
+{% if request.user == property.agent %}
+    <a href="{% url 'update_property' property.id %}">Edit Property</a>
+{% endif %}
+ {% endblock %}

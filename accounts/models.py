@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 
 class CustomUser(AbstractUser):
+    phone_number = models.CharField(max_length=20, null=True, blank=True)
     @property
     def is_agent(self):
         return self.groups.filter(name='Agent').exists()
@@ -13,19 +14,17 @@ class CustomUser(AbstractUser):
 
 
 class AgentProfile(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    email = models.EmailField()
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='agent_profile')
+    
     experience = models.IntegerField(default=0)
-    phone_number = models.CharField(max_length=20)
+    
 
     def __str__(self):
         return self.user.username
     
 
 class CustomerProfile(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    email = models.EmailField()
-    phone_number = models.CharField(max_length=20)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='customer_profile')
 
     def __str__(self):
         return self.user.username

@@ -1,11 +1,33 @@
-{% extends 'Properties/base.html' %}
+{% extends 'Properties/base.html' %} {% block content %}
+<h1>Properties List</h1>
+<ul>
+  <form method="get">
+    <input
+      type="text"
+      name="q"
+      placeholder="Search title or address"
+      value="{{ request.GET.q }}"
+    />
+    <input
+      type="number"
+      name="min_price"
+      placeholder="Min price"
+      value="{{ request.GET.min_price }}"
+    />
+    <input
+      type="number"
+      name="max_price"
+      placeholder="Max price"
+      value="{{ request.GET.max_price }}"
+    />
+    <button type="submit">Search</button>
+  </form>
 
-{% block content %}
-    <h1>Properties List</h1>
-    <ul>
-        {% for property in properties %}
-            <a href="{% url 'property_detail' pk=property.id %}"><li>{{ property.title }} - ₦{{ property.price }}</li></a>
-            <p>Agent: {{property.agent}}</p>
-        {% endfor %}
-    </ul>
+  {% for property in properties %}
+  <a href="{% url 'property_detail' pk=property.id %}"
+    ><li>{{ property.title }} - ₦{{ property.price }}</li></a
+  >
+  <p>Agent: {{property.agent}}</p>
+  {% endfor %}
+</ul>
 {% endblock %}
