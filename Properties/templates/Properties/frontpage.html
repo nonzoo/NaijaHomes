@@ -1,4 +1,6 @@
-{% extends 'Properties/base.html' %} {% block content %}
+{% extends 'Properties/base.html' %}
+{% load number_format %}
+{% block content %}
 
 <div class="w-full h-full">
     <!-- Hero Section -->
@@ -52,7 +54,7 @@
     <!-- Stats Section -->
     <section class="py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            <div class="grid grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                 <div class="text-center p-6 bg-white rounded-2xl shadow-sm">
                     <div class="text-3xl sm:text-4xl font-bold text-emerald-700 mb-1">
                         15,000+
@@ -71,12 +73,7 @@
                     </div>
                     <div class="text-gray-600 font-medium">Verified Agents</div>
                 </div>
-                <div class="text-center p-6 bg-white rounded-2xl shadow-sm">
-                    <div class="text-3xl sm:text-4xl font-bold text-emerald-700 mb-1">
-                        36
-                    </div>
-                    <div class="text-gray-600 font-medium">States Covered</div>
-                </div>
+
             </div>
         </div>
     </section>
@@ -99,13 +96,19 @@
                             d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg></a>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 lg:gap-8">
                 <!-- Property Card -->
                 {% for property in featured_properties %}
                 <div class="property-card bg-stone-50 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl">
                     <div class="relative h-56 overflow-hidden">
-                        <img src="{{property.image.url}}" alt="Luxury 5 Bedroom Detached Duplex" loading="lazy"
-                            class="property-image w-full h-full object-cover" onerror="console.error('Image failed to load:', this.src);this.style.background = '#10b981';this.alt = 'Luxury property - image unavailable';" />
+                        {% if property.image %}
+                        <img src="{{ property.image.url }}" alt="{{ property.title }}" loading="lazy"
+                            class="property-image w-full h-full object-cover transition-transform duration-500" />
+                        {% else %}
+                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <span class="text-gray-400">No image</span>
+                        </div>
+                        {% endif %}
                         <div class="absolute top-4 left-4 flex gap-2">
                             {% if property.property_type == "Rent" %}
                             <span
@@ -118,9 +121,7 @@
                                 class="px-3 py-1 bg-amber-500 text-white text-xs font-bold rounded-full">FEATURED</span>
                         </div>
                         {% if user.is_authenticated %}
-                        <button
-                            data-property-id="{{ property.id }}"
-                            class="favorite-btn absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-colors
+                        <button data-property-id="{{ property.id }}" class="favorite-btn absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-colors
                             {% if property.id in favorite_ids %}
                                 bg-emerald-600
                             {% else %}
@@ -134,18 +135,16 @@
                                 {% else %}
                                     text-gray-600
                                 {% endif %}
-                            "
-                            fill="{% if property.id in favorite_ids %}currentColor{% else %}none{% endif %}"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24">
+                            " fill="{% if property.id in favorite_ids %}currentColor{% else %}none{% endif %}"
+                                stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                             </svg>
                         </button>
 
                         {% else %}
-                        <a href="{% url 'login' %}"
-                        class="absolute top-4 right-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center">
+                        <a href="{% url 'auth' %}"
+                            class="absolute top-4 right-4 w-10 h-10 bg-white/90 rounded-full flex items-center justify-center">
                             <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -173,14 +172,14 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                 </svg>
-                                {{property.bedrooms}} Beds
+                                {{property.bedrooms}} Bed{% if property.bedrooms != 1 %}s{% endif %}
                             </span>
                             <span class="flex items-center gap-1">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
                                 </svg>
-                                {{property.bathrooms}} Baths
+                                {{property.bathrooms}} Bath{% if property.bathrooms != 1 %}s{% endif %}
                             </span>
                             <span class="flex items-center gap-1">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
@@ -192,7 +191,7 @@
                         </div>
                         <div class="flex items-center justify-between pt-4 border-t border-gray-200">
                             <div>
-                                <span class="text-2xl font-bold text-emerald-700">₦{{property.price}}</span>
+                                <span class="text-2xl font-bold text-emerald-700">₦{{property.price|abbreviate_number}}</span>
                             </div>
                             <a href="{% url 'property_detail' property.id %}">
                                 <button
@@ -390,9 +389,8 @@
             </div>
         </div>
     </section>
-<div id="toast"
-     class="fixed bottom-6 right-6 bg-gray-900 text-white px-4 py-3 rounded-lg shadow-lg hidden z-50">
-</div>
+    <div id="toast" class="fixed bottom-6 right-6 bg-gray-900 text-white px-4 py-3 rounded-lg shadow-lg hidden z-50">
+    </div>
 
 </div>
 

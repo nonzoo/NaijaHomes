@@ -1,10 +1,447 @@
-{% extends 'Properties/base.html' %}
+{% extends "Properties/base.html" %}
 
 {% block content %}
-    <h1>Edit Profile</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save Changes</button>
-    </form>
+<style>
+    .font-display {
+        font-family: 'Playfair Display', serif;
+    }
+
+    .font-body {
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    .hero-gradient {
+        background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 50%, #1a472a 100%);
+    }
+
+    .pattern-bg {
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #047857 0%, #059669 100%);
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(4, 120, 87, 0.3);
+    }
+
+    .btn-outline {
+        border: 2px solid #e5e7eb;
+        background: white;
+        color: #6b7280;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline:hover {
+        border-color: #047857;
+        color: #047857;
+        background: #f0fdf4;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #fff;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #047857;
+        box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.1);
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 700;
+        color: #1f2937;
+        font-size: 14px;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        margin-bottom: 24px;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 800;
+        color: #1f2937;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .avatar-upload {
+        position: relative;
+        display: inline-block;
+    }
+
+    .avatar-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 9999px;
+        object-fit: cover;
+        border: 4px solid #047857;
+        background: #e5e7eb;
+    }
+
+    .avatar-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.42);
+        border-radius: 9999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+        cursor: pointer;
+    }
+
+    .avatar-upload:hover .avatar-overlay {
+        opacity: 1;
+    }
+
+    .avatar-upload input[type="file"] {
+        display: none;
+    }
+
+    .grid-2-cols {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+    }
+
+    .input-group {
+        margin-bottom: 16px;
+    }
+
+    .msg {
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 18px;
+        font-weight: 700;
+        display: none;
+    }
+
+    .msg.show {
+        display: block;
+    }
+
+    .msg-success {
+        background: #dcfce7;
+        border: 2px solid #22c55e;
+        color: #166534;
+    }
+
+    .msg-error {
+        background: #fee2e2;
+        border: 2px solid #ef4444;
+        color: #991b1b;
+    }
+</style>
+
+<!-- Hero -->
+<section class="hero-gradient relative overflow-hidden py-14 sm:py-20">
+    <div class="absolute inset-0 pattern-bg opacity-30"></div>
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 class="font-display text-4xl sm:text-5xl font-bold text-white mb-3">Edit Your Profile</h1>
+        <p class="text-emerald-100 text-lg max-w-3xl mx-auto">Keep your information up to date and manage your
+            preferences</p>
+    </div>
+</section>
+
+<section class="py-10 sm:py-14 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto font-body">
+
+        <!-- Django messages (optional) -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="msg show {% if message.tags == 'success' %}msg-success{% else %}msg-error{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Non-field errors -->
+        {% if form.non_field_errors %}
+        <div class="msg show msg-error">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <form id="profileForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Profile Picture Card -->
+            <div class="profile-card">
+                <div class="flex flex-col sm:flex-row items-center gap-8">
+                    <div class="avatar-upload">
+                        {% if user.profile_image %}
+                        <img id="profileImage" src="{{ user.profile_image.url }}" class="avatar-image"
+                            alt="Profile picture">
+                        {% else %}
+                        <img id="profileImage"
+                            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect fill='%23e5e7eb' width='120' height='120'/%3E%3Ccircle cx='60' cy='40' r='20' fill='%236b7280'/%3E%3Cpath d='M30 80c0-15 15-20 30-20s30 5 30 20v20H30z' fill='%236b7280'/%3E%3C/svg%3E"
+                            class="avatar-image" alt="Profile picture">
+                        {% endif %}
+
+                        <div class="avatar-overlay">
+                            <label class="text-center">
+                                <svg class="w-8 h-8 text-white mx-auto" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4"></path>
+                                </svg>
+                                <p class="text-white text-xs mt-2 font-semibold">Change Photo</p>
+
+                                {# IMPORTANT: we render the Django field but hide the input via CSS #}
+                                {{ form.profile_image }}
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 text-center sm:text-left">
+                        <h3 id="userFullName" class="font-display text-2xl font-bold text-gray-900 mb-1">
+                            {% if user.first_name or user.last_name %}
+                            {{ user.first_name }} {{ user.last_name }}
+                            {% else %}
+                            {{ user.username }}
+                            {% endif %}
+                        </h3>
+                        <p id="userEmailPreview" class="text-gray-600 mb-3">
+                            {{ user.email|default:"No email set" }}
+                        </p>
+
+                        <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+                            <button type="button" id="triggerUploadBtn"
+                                class="btn-outline px-6 py-2 rounded-lg font-semibold">
+                                Upload Photo
+                            </button>
+
+                            <a href="{% url 'my_profile' %}"
+                                class="btn-outline px-6 py-2 rounded-lg font-semibold text-center">
+                                Back to Profile
+                            </a>
+                        </div>
+
+                        {% if form.profile_image.errors %}
+                        <p class="text-sm text-red-600 font-semibold mt-3">{{ form.profile_image.errors }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Info Card -->
+            <div class="profile-card">
+                <div class="section-title">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Personal Information
+                </div>
+
+                <div class="grid-2-cols">
+                    <div class="input-group">
+                        <label class="form-label" for="id_first_name">First Name</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}<p class="text-sm text-red-600 font-semibold mt-2">{{
+                            form.first_name.errors }}</p>{% endif %}
+                    </div>
+
+                    <div class="input-group">
+                        <label class="form-label" for="id_last_name">Last Name</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}<p class="text-sm text-red-600 font-semibold mt-2">{{
+                            form.last_name.errors }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div class="grid-2-cols">
+                    <div class="input-group">
+                        <label class="form-label" for="id_username">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}<p class="text-sm text-red-600 font-semibold mt-2">{{
+                            form.username.errors }}</p>{% endif %}
+                    </div>
+
+                    <div class="input-group">
+                        <label class="form-label" for="id_phone_number">Phone Number</label>
+                        {{ form.phone_number }}
+                        {% if form.phone_number.errors %}<p class="text-sm text-red-600 font-semibold mt-2">{{
+                            form.phone_number.errors }}</p>{% endif %}
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="form-label" for="id_email">Email Address</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}<p class="text-sm text-red-600 font-semibold mt-2">{{ form.email.errors }}
+                    </p>{% endif %}
+                </div>
+            </div>
+
+            {% if form.experience %}
+            <!-- Agent-only Card -->
+            <div class="profile-card">
+                <div class="section-title">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4m0 0L10 10m0-6l6 6M7 20h10a2 2 0 002-2V9a2 2 0 00-2-2H7a2 2 0 00-2 2v9a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                    Professional Information
+                </div>
+
+                <div class="input-group">
+                    <label class="form-label" for="id_experience">Experience (years)</label>
+                    {{ form.experience }}
+                    {% if form.experience.errors %}<p class="text-sm text-red-600 font-semibold mt-2">{{
+                        form.experience.errors }}</p>{% endif %}
+                </div>
+
+                <div class="input-group">
+                    <label class="form-label" for="id_bio">Bio</label>
+                    {{ form.bio }}
+                    {% if form.bio.errors %}<p class="text-sm text-red-600 font-semibold mt-2">{{ form.bio.errors }}</p>{% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <button type="submit"
+                    class="btn-secondary px-8 py-3 text-white font-bold rounded-lg flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Save Changes
+                </button>
+
+                <a href="{% url 'my_profile' %}" class="btn-outline px-8 py-3 font-bold rounded-lg text-center">
+                    Cancel
+                </a>
+            </div>
+        </form>
+
+    </div>
+</section>
+
+<style>
+    .profile-card svg {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+    .avatar-overlay svg {
+        width: 22px !important;
+        height: 22px !important;
+    }
+</style>
+
+<script>
+    // ---------- Helpers ----------
+    function setInputClasses() {
+        // Add Tailwind + theme input class to all generated Django inputs/selects/textarea
+        const selectors = [
+            '#profileForm input[type="text"]',
+            '#profileForm input[type="email"]',
+            '#profileForm input[type="tel"]',
+            '#profileForm input[type="number"]',
+            '#profileForm select',
+            '#profileForm textarea'
+        ];
+        document.querySelectorAll(selectors.join(',')).forEach(el => {
+            // don't style hidden file input here; we hide it already
+            if (el.type === 'file') return;
+            el.classList.add('form-input');
+        });
+
+        // hide the file input (Django renders it)
+        const fileInput = document.getElementById('id_profile_image');
+        if (fileInput) {
+            fileInput.setAttribute('accept', 'image/*');
+            fileInput.style.display = 'none';
+        }
+    }
+
+    function triggerPhotoUpload() {
+        const fileInput = document.getElementById('id_profile_image');
+        if (fileInput) fileInput.click();
+    }
+
+    function previewPhoto(file) {
+        if (!file) return;
+        const allowed = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif'];
+        if (!allowed.includes(file.type)) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.getElementById('profileImage');
+            if (img) img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function liveNameAndEmailPreview() {
+        const first = document.getElementById('id_first_name');
+        const last = document.getElementById('id_last_name');
+        const email = document.getElementById('id_email');
+
+        const nameEl = document.getElementById('userFullName');
+        const emailEl = document.getElementById('userEmailPreview');
+
+        function update() {
+            const firstVal = first ? first.value.trim() : '';
+            const lastVal = last ? last.value.trim() : '';
+            const emailVal = email ? email.value.trim() : '';
+
+            if (nameEl) {
+                const full = (firstVal + ' ' + lastVal).trim();
+                nameEl.textContent = full || '{{ user.username|escapejs }}';
+            }
+
+            if (emailEl) {
+                emailEl.textContent = emailVal || 'No email set';
+            }
+        }
+
+        if (first) first.addEventListener('input', update);
+        if (last) last.addEventListener('input', update);
+        if (email) email.addEventListener('input', update);
+
+        update(); // init
+    }
+
+    // ---------- Init ----------
+    document.addEventListener('DOMContentLoaded', () => {
+        setInputClasses();
+        liveNameAndEmailPreview();
+
+        const uploadBtn = document.getElementById('triggerUploadBtn');
+        if (uploadBtn) uploadBtn.addEventListener('click', triggerPhotoUpload);
+
+        const fileInput = document.getElementById('id_profile_image');
+        if (fileInput) {
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files && e.target.files[0];
+                previewPhoto(file);
+            });
+        }
+    });
+</script>
 {% endblock %}

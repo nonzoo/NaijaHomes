@@ -1,14 +1,201 @@
 {% extends "Properties/base.html" %}
 
 {% block content %}
-<h1>Agent Dashboard</h1>
-<p>Welcome {{request.user}} to the agent dashboard! Here you can manage your property listings, view inquiries from potential buyers, and update your profile information.</p>
-<p>Create new property listings or edit existing ones.</p>
-<a href="{% url 'create_property' %}">Create New Property</a>
+<section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-<p>My Properties</p>
-{% for property in properties %}
-    <p><a href="{% url 'property_detail' property.id %}">{{ property.title }}</a></p>
-{% endfor %}
+  <!-- Header -->
+  <div class="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 mb-8 shadow-sm">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h1 class="font-display text-3xl sm:text-4xl font-bold text-gray-900">Agent Dashboard</h1>
+        <p class="text-gray-600 mt-2">
+          Welcome <span class="font-semibold text-gray-900">{{ request.user.username }}</span>.
+          Manage your listings, update details, and keep your profile sharp.
+        </p>
+      </div>
 
+      <div class="flex gap-3">
+        <a href="{% url 'create_property' %}"
+           class="inline-flex items-center gap-2 px-5 py-3 bg-emerald-700 text-white font-semibold rounded-xl hover:bg-emerald-800 transition-colors shadow-sm">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 4v16m8-8H4"/>
+          </svg>
+          Create Property
+        </a>
+
+        <a href="{% url 'property_list' %}"
+           class="inline-flex items-center gap-2 px-5 py-3 bg-white text-emerald-700 font-semibold rounded-xl border-2 border-emerald-700 hover:bg-emerald-50 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+          View All Listings
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+      <div class="bg-stone-50 border border-gray-200 rounded-2xl p-5">
+        <p class="text-sm text-gray-600 mb-1">My Listings</p>
+        <p class="text-3xl font-bold text-emerald-700">{{ properties|length }}</p>
+      </div>
+
+      <div class="bg-stone-50 border border-gray-200 rounded-2xl p-5">
+        <p class="text-sm text-gray-600 mb-1">Featured Listings</p>
+        
+        <p class="text-3xl font-bold text-amber-500">{{ featured_count|default:0 }}</p>
+      </div>
+
+      <div class="bg-stone-50 border border-gray-200 rounded-2xl p-5">
+        <p class="text-sm text-gray-600 mb-1">Profile</p>
+        <p class="text-lg font-semibold text-gray-900">
+          {% if request.user.first_name or request.user.last_name %}
+            {{ request.user.first_name }} {{ request.user.last_name }}
+          {% else %}
+            {{ request.user.username }}
+          {% endif %}
+        </p>
+        <p class="text-sm text-gray-600">{{ request.user.email|default:"No email" }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Listings -->
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="font-display text-2xl font-bold text-gray-900">My Properties</h2>
+    {% if properties %}
+      <p class="text-sm text-gray-600">Showing {{ properties|length }} listing{{ properties|length|pluralize }}</p>
+    {% endif %}
+  </div>
+
+  {% if properties %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for property in properties %}
+      <div class="bg-stone-50 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-gray-100">
+        <div class="relative h-48 overflow-hidden">
+          {% if property.image %}
+            <img src="{{ property.image.url }}"
+                 alt="{{ property.title }}"
+                 class="w-full h-full object-cover"
+                 loading="lazy">
+          {% else %}
+            <div class="w-full h-full bg-emerald-700 flex items-center justify-center text-white font-bold">
+              No Image
+            </div>
+          {% endif %}
+
+          <div class="absolute top-4 left-4 flex gap-2">
+            <span class="px-3 py-1 bg-emerald-600 text-white text-xs font-bold rounded-full">
+              {{ property.property_type }}
+            </span>
+            {% if property.is_featured %}
+              <span class="px-3 py-1 bg-amber-500 text-white text-xs font-bold rounded-full">
+                FEATURED
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="p-5">
+          <p class="text-sm text-gray-600 mb-2">
+            <span class="inline-flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              {{ property.address|default:"No address" }}
+            </span>
+          </p>
+
+          <h3 class="font-display text-xl font-bold text-gray-900 mb-3">
+            <a href="{% url 'property_detail' property.id %}" class="hover:text-emerald-700 transition-colors">
+              {{ property.title }}
+            </a>
+          </h3>
+
+          <div class="flex items-center gap-4 text-gray-600 text-sm mb-4">
+            <span class="flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+              </svg>
+              {{ property.bedrooms|default:"-" }} Beds
+            </span>
+
+            <span class="flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/>
+              </svg>
+              {{ property.bathrooms|default:"-" }} Baths
+            </span>
+
+            <span class="flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+              </svg>
+              {{ property.Sqm|default:"-" }} sqm
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+            <div class="text-emerald-700 font-bold text-2xl">
+              ₦{{ property.price }}
+            </div>
+
+            <div class="flex items-center gap-2">
+              <a href="{% url 'property_detail' property.id %}"
+                 class="px-4 py-2 bg-white text-emerald-700 font-semibold rounded-xl border-2 border-emerald-700 hover:bg-emerald-50 transition-colors text-sm">
+                View
+              </a>
+
+              {% if request.user == property.agent %}
+              <a href="{% url 'update_property' property.id %}"
+                 class="px-4 py-2 bg-emerald-700 text-white font-semibold rounded-xl hover:bg-emerald-800 transition-colors text-sm">
+                Edit
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="bg-white border border-gray-200 rounded-2xl p-8 text-center">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-emerald-700/10 flex items-center justify-center mb-4">
+        <svg class="w-8 h-8 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 4v16m8-8H4"/>
+        </svg>
+      </div>
+      <h3 class="font-display text-2xl font-bold text-gray-900 mb-2">No properties yet</h3>
+      <p class="text-gray-600 mb-6">Create your first listing to start getting visibility.</p>
+      <a href="{% url 'create_property' %}"
+         class="inline-flex items-center gap-2 px-5 py-3 bg-emerald-700 text-white font-semibold rounded-xl hover:bg-emerald-800 transition-colors shadow-sm">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 4v16m8-8H4"/>
+        </svg>
+        Create Property
+      </a>
+    </div>
+  {% endif %}
+
+</section>
+
+<style>
+  .font-display { font-family: 'Playfair Display', serif; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-slide-in { animation: slideIn 0.6s ease-out; }
+</style>
 {% endblock %}

@@ -1,11 +1,267 @@
 {% extends "Properties/base.html" %}
 
 {% block content %}
-    <h1>My Profile</h1>
-    <p>Username: {{ user.username }}</p>
-    <p>Email: {{ user.email }}</p>
-    <p>Role: {{ user.groups.all.0.name }}</p>
-    <p>Experience: {{ user.experience }}</p>
+<style>
+  .font-display { font-family: 'Playfair Display', serif; }
+  .font-body { font-family: 'DM Sans', sans-serif; }
 
-    <a href="{% url 'update_profile' %}">Edit Profile</a>
+  .hero-gradient {
+    background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 50%, #1a472a 100%);
+  }
+
+  .pattern-bg {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #d4af37 0%, #c9a227 100%);
+    transition: all 0.3s ease;
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #e5c158 0%, #d4af37 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.35);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, #047857 0%, #059669 100%);
+    transition: all 0.3s ease;
+  }
+  .btn-secondary:hover {
+    background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(4, 120, 87, 0.3);
+  }
+
+  .profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 54px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    border: 4px solid white;
+    overflow: hidden;
+  }
+
+  .stat-badge {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .stat-number {
+    font-size: 26px;
+    font-weight: 800;
+    color: #047857;
+  }
+  .stat-label {
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .about-section {
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    margin-bottom: 22px;
+  }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1f2937;
+    margin-bottom: 12px;
+    font-family: 'Playfair Display', serif;
+  }
+
+  .section-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 14px;
+    line-height: 1.7;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+    margin-top: 14px;
+  }
+
+  .info-card {
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 16px;
+    border-left: 4px solid #047857;
+  }
+
+  .info-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: #6b7280;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .info-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1f2937;
+    word-break: break-word;
+  }
+
+  .social-links { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  .social-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 9999px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #047857;
+    font-weight: 900;
+    transition: all 0.2s ease;
+  }
+  .social-icon:hover { background: #047857; color: white; transform: translateY(-2px); }
+
+  /* ✅ Fix big icons everywhere in this page */
+  .naijahomes-profile svg { width: 18px !important; height: 18px !important; }
+  .naijahomes-profile .hero-btn svg { width: 16px !important; height: 16px !important; }
+</style>
+
+<div class="naijahomes-profile font-body bg-stone-50 text-gray-800">
+
+  <!-- Hero -->
+  <section class="hero-gradient relative overflow-hidden py-10 sm:py-16">
+    <div class="absolute inset-0 pattern-bg opacity-30"></div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+
+        <!-- Avatar -->
+        <div class="profile-avatar">
+          {% if user.profile_image %}
+            <img src="{{ user.profile_image.url }}" alt="Profile photo" class="w-full h-full object-cover">
+          {% else %}
+            <span class="text-white font-display font-bold">
+              {{ user.username|slice:":1"|upper }}
+            </span>
+          {% endif %}
+        </div>
+
+        <!-- Profile info -->
+        <div class="flex-1 text-white">
+          <h1 id="profileName" class="font-display text-3xl sm:text-4xl font-bold mb-2">
+            {% if user.first_name or user.last_name %}
+              {{ user.first_name }} {{ user.last_name }}
+            {% else %}
+              {{ user.username }}
+            {% endif %}
+          </h1>
+
+          <p id="profileTitle" class="text-lg text-emerald-100 mb-3">
+            {% if user.groups.all %}
+              {{ user.groups.all.0.name }}
+            {% else %}
+              Member
+            {% endif %}
+            {% if user.agent_profile %}
+              | {{ user.agent_profile.experience }}+ Years Experience
+            {% endif %}
+          </p>
+
+          <p class="text-emerald-100 mb-5 max-w-2xl leading-relaxed">
+            {{user.agent_profile.bio|default:"This user hasn't added a bio yet."}}
+          </p>
+
+          <div class="social-links">
+            {% if user.phone_number %}
+              <span class="social-icon" title="Phone">📱</span>
+            {% endif %}
+            {% if user.email %}
+              <span class="social-icon" title="Email">📧</span>
+            {% endif %}
+            <span class="social-icon" title="WhatsApp">💬</span>
+          </div>
+
+          <div class="mt-6 flex flex-col sm:flex-row gap-3">
+            <a href="{% url 'update_profile' %}" class="btn-primary hero-btn px-7 py-3 text-emerald-900 font-bold rounded-lg inline-flex items-center gap-2">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              Edit Profile
+            </a>
+
+            <a href="{% url 'logout' %}" class="btn-secondary hero-btn px-7 py-3 text-white font-bold rounded-lg inline-flex items-center gap-2">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/>
+              </svg>
+              Logout
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Main Content -->
+  <section class="py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+
+      <!-- Contact Info -->
+      <div class="about-section">
+        <h2 class="section-title">Contact Information</h2>
+
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-label">Username</div>
+            <div class="info-value">{{ user.username }}</div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-label">Email</div>
+            <div class="info-value">{{ user.email|default:"Not set" }}</div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-label">Phone</div>
+            <div class="info-value">{{ user.phone_number|default:"Not set" }}</div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-label">Role</div>
+            <div class="info-value">
+              {% if user.groups.all %}
+                {{ user.groups.all.0.name }}
+              {% else %}
+                Member
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Optional: if the page ever becomes dynamic later, keep these ids ready
+  // (No fake data here; Django renders the real values)
+</script>
 {% endblock %}

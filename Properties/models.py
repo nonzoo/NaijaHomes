@@ -1,17 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
-
+from django.contrib.humanize.templatetags.humanize import intcomma
 
 type = (
     ('Rent', 'Rent'),
-    ('For Sale', 'For Sale'),
+    ('Sale', 'Sale'),
 )
 
 
 class Properties(models.Model):
     title = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=12, decimal_places=2)
     address = models.CharField(max_length=255, blank=True, null=True)
     agent = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     bedrooms = models.IntegerField(null=True,blank=True)
@@ -24,7 +24,10 @@ class Properties(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     is_featured = models.BooleanField(default=False, blank=True)
     
+    def formatted_price(self):
+        return intcomma(self.price)
     
+
     def image_url(self):
         if self.image and hasattr(self.image, 'url'):
             return self.image.url
@@ -32,6 +35,15 @@ class Properties(models.Model):
 
     def __str__(self):
         return self.title
+    
+
+
+class PropertyImage(models.Model):
+    property = models.ForeignKey(Properties, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="property_images/extra/")
+
+    def __str__(self):
+        return f"{self.property.title} image"
     
 
 

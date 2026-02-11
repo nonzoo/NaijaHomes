@@ -1,0 +1,326 @@
+{# templates/accounts/auth.html #}
+{% extends "Properties/base.html" %}
+
+{% block content %}
+<section class="bg-stone-50 min-h-screen">
+
+    <!-- Hero -->
+    <section class="hero-gradient relative overflow-hidden py-12 sm:py-16">
+        <div class="absolute inset-0 pattern-bg opacity-30"></div>
+        <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="font-display text-4xl sm:text-5xl font-bold text-white mb-3">
+                Welcome to NaijaHomes
+            </h1>
+            <p class="text-emerald-100 text-lg max-w-3xl mx-auto">
+                Sign in to manage listings, or create an account to get started.
+            </p>
+        </div>
+    </section>
+
+    <!-- Forms -->
+    <section class="py-10 sm:py-14 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+                <div class="p-6 sm:p-10">
+
+                    <!-- Tabs -->
+                    <div class="flex gap-3 mb-8">
+                        <button type="button" id="tabSignIn" class="tab-button active w-1/2">Sign In</button>
+                        <button type="button" id="tabSignUp" class="tab-button w-1/2">Sign Up</button>
+                    </div>
+
+                    <!-- Messages (optional) -->
+                    {% if messages %}
+                    <div class="space-y-3 mb-6">
+                        {% for message in messages %}
+                        <div class="rounded-xl p-4 border
+                  {% if message.tags == 'success' %}
+                    bg-emerald-50 border-emerald-200 text-emerald-800
+                  {% elif message.tags == 'error' %}
+                    bg-red-50 border-red-200 text-red-800
+                  {% else %}
+                    bg-gray-50 border-gray-200 text-gray-800
+                  {% endif %}
+                ">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- SIGN IN -->
+                    <div id="signInBox">
+                        <h2 class="font-display text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+                        <p class="text-gray-600 mb-8">Sign in to your account to continue</p>
+
+                        {% if login_error %}
+                        <div class="error-message mb-6">
+                            {{ login_error }}
+                        </div>
+                        {% endif %}
+
+                        {# IMPORTANT: submit to auth view, not login view #}
+                        <form action="{% url 'auth' %}" method="post" class="space-y-6">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="login">
+
+                            <div>
+                                <label class="form-label" for="username">Username</label>
+                                <input type="text" id="username" name="username" class="form-input"
+                                    placeholder="your username" required>
+                            </div>
+
+                            <div class="password-field">
+                                <label class="form-label" for="password">Password</label>
+                                <input type="password" id="password" name="password" class="form-input"
+                                    placeholder="Enter your password" required>
+                                <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <button type="submit"
+                                class="btn-secondary w-full py-3 sm:py-4 text-white font-bold rounded-xl text-lg">
+                                Sign In
+                            </button>
+
+                            <p class="text-center text-sm text-gray-600">
+                                Don't have an account?
+                                <button type="button" class="text-emerald-700 font-bold hover:text-emerald-900"
+                                    onclick="showSignUp()">
+                                    Sign up here
+                                </button>
+                            </p>
+                        </form>
+                    </div>
+
+                    <!-- SIGN UP -->
+                    <div id="signUpBox" class="hidden">
+                        <h2 class="font-display text-3xl font-bold text-gray-900 mb-2">Create Account</h2>
+                        <p class="text-gray-600 mb-8">Join NaijaHomes and start finding properties</p>
+
+                        {% if form.non_field_errors %}
+                        <div class="error-message mb-6">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+
+                        {# IMPORTANT: submit to auth view AND include action=signup #}
+                        <form action="{% url 'auth' %}" method="post" class="space-y-6">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="signup">
+
+                            <div class="space-y-5">
+                                {% for field in form %}
+                                <div>
+                                    <label class="form-label" for="{{ field.id_for_label }}">
+                                        {{ field.label }}
+                                        {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                                    </label>
+
+                                    {# This renders the field using our CSS rules below #}
+                                    {{ field }}
+
+                                    {% if field.help_text %}
+                                    <p class="text-xs text-gray-500 mt-2">{{ field.help_text|safe }}</p>
+                                    {% endif %}
+
+                                    {% for error in field.errors %}
+                                    <p class="text-sm text-red-600 mt-2">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <button type="submit"
+                                class="btn-primary w-full py-3 sm:py-4 text-emerald-900 font-bold rounded-xl text-lg">
+                                Create account
+                            </button>
+
+                            <p class="text-center text-sm text-gray-600">
+                                Already have an account?
+                                <button type="button" class="text-emerald-700 font-bold hover:text-emerald-900"
+                                    onclick="showSignIn()">
+                                    Sign in here
+                                </button>
+                            </p>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+</section>
+
+<style>
+    body {
+        box-sizing: border-box;
+    }
+
+    .font-display {
+        font-family: 'Playfair Display', serif;
+    }
+
+    .font-body {
+        font-family: 'DM Sans', sans-serif;
+    }
+
+    .hero-gradient {
+        background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 50%, #1a472a 100%);
+    }
+
+    .pattern-bg {
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #d4af37 0%, #c9a227 100%);
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #e5c158 0%, #d4af37 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(212, 175, 55, 0.35);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #047857 0%, #059669 100%);
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(4, 120, 87, 0.3);
+    }
+
+    /* Make default Django form fields look like your theme */
+    .form-input,
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"],
+    input[type="number"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        outline: none;
+        border-color: #047857;
+        box-shadow: 0 0 0 4px rgba(4, 120, 87, 0.10);
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 700;
+        color: #111827;
+        font-size: 14px;
+    }
+
+    .tab-button {
+        padding: 12px 14px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        background: white;
+        font-weight: 700;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .tab-button.active {
+        background: linear-gradient(135deg, #047857 0%, #059669 100%);
+        border-color: #047857;
+        color: white;
+    }
+
+    .error-message {
+        background: #fee2e2;
+        border: 2px solid #ef4444;
+        border-radius: 12px;
+        padding: 14px;
+        color: #991b1b;
+        font-weight: 600;
+    }
+
+    .password-field {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 10px;
+        top: 40px;
+        cursor: pointer;
+        color: #6b7280;
+        background: none;
+        border: none;
+        padding: 8px;
+    }
+
+    .password-toggle:hover {
+        color: #047857;
+    }
+</style>
+
+<script>
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        field.type = (field.type === "password") ? "text" : "password";
+    }
+
+    const signInBox = document.getElementById("signInBox");
+    const signUpBox = document.getElementById("signUpBox");
+    const tabSignIn = document.getElementById("tabSignIn");
+    const tabSignUp = document.getElementById("tabSignUp");
+
+    function setActiveTab(which) {
+        if (which === "signin") {
+            signInBox.classList.remove("hidden");
+            signUpBox.classList.add("hidden");
+            tabSignIn.classList.add("active");
+            tabSignUp.classList.remove("active");
+        } else {
+            signUpBox.classList.remove("hidden");
+            signInBox.classList.add("hidden");
+            tabSignUp.classList.add("active");
+            tabSignIn.classList.remove("active");
+        }
+    }
+
+    function showSignUp() { setActiveTab("signup"); }
+    function showSignIn() { setActiveTab("signin"); }
+
+    tabSignIn.addEventListener("click", () => setActiveTab("signin"));
+    tabSignUp.addEventListener("click", () => setActiveTab("signup"));
+</script>
+
+
+
+{% if form.errors %}
+<script>
+    // If signup form has errors, open Sign Up tab automatically
+    setActiveTab("signup");
+</script>
+{% endif %}
+{% endblock %}
