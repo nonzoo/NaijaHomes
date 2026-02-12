@@ -44,6 +44,11 @@ def frontpage(request):
     return render(request, 'Properties/frontpage.html',{'featured_properties':featured_properties,'favorite_ids':favorite_ids})
 
 
+def about_view(request):
+    """About Us page"""
+    return render(request, 'Properties/about.html')
+
+
 
 def property_list(request):
     qs = Properties.objects.all()
@@ -82,6 +87,9 @@ def property_list(request):
     if property_type := request.GET.get("property_type"):
         qs = qs.filter(property_type__iexact=property_type)
     
+    if state := request.GET.get("state"):
+        qs = qs.filter(state__iexact=state)
+    
     # Pagination
     paginator = Paginator(qs, 10)
     page_number = request.GET.get('page')
@@ -90,23 +98,34 @@ def property_list(request):
     return render(request, 'Properties/properties_list.html', {'properties': properties, 'favorite_ids': favorite_ids})
 
 
+
+
 def property_detail(request, pk):
     property = Properties.objects.get(id=pk)
     agent = property.agent.agent_profile
     
+    # Filter similar properties by state (primary), then by property type and price range (secondary)
     similar_properties = Properties.objects.filter(
-        # 1️⃣ Same location (city inside address)
-        address__icontains=property.address.split(",")[-1].strip(),  # Assuming city is last part of address
-
-        # 2️⃣ Same property type
-        property_type=property.property_type,
-
-        # 3️⃣ Price within 30% range
-        price__range=(
-            property.price * Decimal('0.7'),
-            property.price * Decimal('1.3')
-        ),
+        state__iexact=property.state,
     ).exclude(id=property.id).order_by("?")[:4]
+    
+    # If not enough results, expand the filter
+    if similar_properties.count() < 4:
+        similar_properties = Properties.objects.filter(
+            state__iexact=property.state,
+            property_type=property.property_type,
+        ).exclude(id=property.id).order_by("?")[:4]
+    
+    # If still not enough, include price range filter
+    if similar_properties.count() < 4:
+        similar_properties = Properties.objects.filter(
+            state__iexact=property.state,
+            property_type=property.property_type,
+            price__range=(
+                property.price * Decimal('0.7'),
+                property.price * Decimal('1.3')
+            ),
+        ).exclude(id=property.id).order_by("?")[:4]
 
 
     images_list = []
@@ -128,7 +147,10 @@ def property_detail(request, pk):
 
 @login_required
 def favorites_list(request):
-    favorites = Favorite.objects.filter(user=request.user).select_related("property").order_by("-created_at")
+    favorites_list = Favorite.objects.filter(user=request.user).select_related("property").order_by("-created_at")
+    paginator = Paginator(favorites_list, 12)  # 12 favorites per page
+    page_number = request.GET.get('page')
+    favorites = paginator.get_page(page_number)
     return render(request, "Properties/favorites_list.html", {"favorites": favorites})
 
 

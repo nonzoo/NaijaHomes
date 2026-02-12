@@ -27,16 +27,15 @@
 
           <div class="flex gap-2">
             <a href="{% url 'property_detail' property.id %}"
-               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-emerald-700 text-emerald-700 font-semibold hover:bg-emerald-50 transition-colors text-sm">
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-emerald-700 text-emerald-700 font-semibold hover:bg-emerald-50 transition-colors text-sm">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 19l-7-7 7-7"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
               </svg>
               Back
             </a>
 
             <a href="{% url 'agent_dashboard' %}"
-               class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors text-sm">
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors text-sm">
               Dashboard
             </a>
           </div>
@@ -46,9 +45,9 @@
           {% csrf_token %}
 
           {% if messages %}
-            <div class="space-y-3">
-              {% for message in messages %}
-                <div class="rounded-xl p-4 border
+          <div class="space-y-3">
+            {% for message in messages %}
+            <div class="rounded-xl p-4 border
                   {% if message.tags == 'success' %}
                     bg-emerald-50 border-emerald-200 text-emerald-800
                   {% elif message.tags == 'error' %}
@@ -57,46 +56,81 @@
                     bg-gray-50 border-gray-200 text-gray-800
                   {% endif %}
                 ">
-                  {{ message }}
-                </div>
-              {% endfor %}
+              {{ message }}
             </div>
+            {% endfor %}
+          </div>
           {% endif %}
 
           {% if form.non_field_errors %}
-            <div class="rounded-xl p-4 bg-red-50 border border-red-200 text-red-800">
-              {{ form.non_field_errors }}
-            </div>
+          <div class="rounded-xl p-4 bg-red-50 border border-red-200 text-red-800">
+            {{ form.non_field_errors }}
+          </div>
           {% endif %}
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {% for field in form %}
-              <div class="{% if field.name == 'description' %}sm:col-span-2{% endif %}">
-                <label class="block text-sm font-semibold text-gray-900 mb-2">
-                  {{ field.label }} {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
-                </label>
 
-                {{ field }}
+            <!-- ✅ MAIN IMAGE PREVIEW + INPUT -->
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-semibold text-gray-900 mb-2">
+                Main Image {% if form.image.field.required %}<span class="text-red-500">*</span>{% endif %}
+              </label>
 
-                {% if field.help_text %}
-                  <p class="text-xs text-gray-500 mt-2">{{ field.help_text }}</p>
-                {% endif %}
-
-                {% for error in field.errors %}
-                  <p class="text-sm text-red-600 mt-2">{{ error }}</p>
-                {% endfor %}
+              {% if property.image %}
+              <div class="mb-3">
+                <img id="mainImagePreview" src="{{ property.image.url }}" alt="Current property image"
+                  class="w-full max-h-[360px] object-cover rounded-2xl border border-gray-200 bg-gray-50">
+                <p class="text-xs text-gray-500 mt-2">
+                  Current image. Upload a new one below to replace it.
+                </p>
               </div>
+              {% else %}
+              <div
+                class="mb-3 rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center text-gray-500">
+                No image uploaded yet.
+              </div>
+              <img id="mainImagePreview" src="" alt="New image preview"
+                class="hidden w-full max-h-[360px] object-cover rounded-2xl border border-gray-200 bg-gray-50 mb-3">
+              {% endif %}
+
+              <input type="file" name="image" id="id_image" accept="image/*"
+                class="w-full p-3 border-2 border-gray-200 rounded-xl bg-white focus:outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10 transition">
+
+
+              {% if form.image.help_text %}
+              <p class="text-xs text-gray-500 mt-2">{{ form.image.help_text }}</p>
+              {% endif %}
+
+              {% for error in form.image.errors %}
+              <p class="text-sm text-red-600 mt-2">{{ error }}</p>
+              {% endfor %}
+            </div>
+
+            <!-- ✅ ALL OTHER FIELDS  -->
+            {% for field in form %}
+            {% if field.name != "image" %}
+            <div class="{% if field.name == 'description' %}sm:col-span-2{% endif %}">
+              <label class="block text-sm font-semibold text-gray-900 mb-2">
+                {{ field.label }} {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+              </label>
+
+              {{ field }}
+
+              {% if field.help_text %}
+              <p class="text-xs text-gray-500 mt-2">{{ field.help_text }}</p>
+              {% endif %}
+
+              {% for error in field.errors %}
+              <p class="text-sm text-red-600 mt-2">{{ error }}</p>
+              {% endfor %}
+            </div>
+            {% endif %}
             {% endfor %}
 
             <div class="sm:col-span-2">
               <label class="block text-sm font-semibold text-gray-900 mb-2">More Images</label>
-              <input
-                type="file"
-                name="images"
-                multiple
-                accept="image/*"
-                class="w-full p-3 border-2 border-gray-200 rounded-xl bg-white focus:outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10 transition"
-              >
+              <input type="file" name="images" multiple accept="image/*"
+                class="w-full p-3 border-2 border-gray-200 rounded-xl bg-white focus:outline-none focus:border-emerald-700 focus:ring-4 focus:ring-emerald-700/10 transition">
               <p class="text-xs text-gray-500 mt-2">
                 Select extra images to add. Existing images remain unless you remove them separately.
               </p>
@@ -106,18 +140,26 @@
           <!-- Buttons -->
           <div class="flex flex-col sm:flex-row gap-3 justify-end pt-4 border-t border-gray-200">
             <a href="{% url 'property_detail' property.id %}"
-               class="px-6 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors text-center">
+              class="px-6 py-3 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors text-center">
               Cancel
             </a>
 
             <button type="submit"
-                    class="px-6 py-3 rounded-xl btn-secondary text-white font-bold flex items-center justify-center gap-2">
+              class="px-6 py-3 rounded-xl btn-secondary text-white font-bold flex items-center justify-center gap-2">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M5 13l4 4L19 7"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
               </svg>
               Update Property
             </button>
+
+            <a href="{% url 'delete_property' property.id %}"
+              class="px-6 py-3 rounded-xl border-2 border-red-200 text-red-700 font-semibold hover:bg-red-50 transition-colors text-center flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete Property
+            </a>
           </div>
 
         </form>
@@ -129,10 +171,17 @@
 </section>
 
 <style>
-  body { box-sizing: border-box; }
+  body {
+    box-sizing: border-box;
+  }
 
-  .font-display { font-family: 'Playfair Display', serif; }
-  .font-body { font-family: 'DM Sans', sans-serif; }
+  .font-display {
+    font-family: 'Playfair Display', serif;
+  }
+
+  .font-body {
+    font-family: 'DM Sans', sans-serif;
+  }
 
   .hero-gradient {
     background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 50%, #1a472a 100%);
@@ -154,8 +203,14 @@
   }
 
   /* Make Django form fields look good without rewriting widgets */
-  input[type="text"], input[type="number"], input[type="email"], input[type="url"],
-  input[type="password"], select, textarea {
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="url"],
+  input[type="password"],
+  input[type="file"],
+  select,
+  textarea {
     width: 100%;
     padding: 12px 16px;
     border: 2px solid #e5e7eb;
@@ -166,12 +221,35 @@
     background: white;
   }
 
-  textarea { min-height: 140px; resize: vertical; }
+  textarea {
+    min-height: 140px;
+    resize: vertical;
+  }
 
-  input:focus, select:focus, textarea:focus {
+  input:focus,
+  select:focus,
+  textarea:focus {
     outline: none;
     border-color: #047857;
     box-shadow: 0 0 0 4px rgba(4, 120, 87, 0.10);
   }
 </style>
+
+<script>
+  // ✅ Live preview for main image when a new file is selected
+  document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("id_image");
+    const preview = document.getElementById("mainImagePreview");
+
+    if (!input || !preview) return;
+
+    input.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      preview.src = URL.createObjectURL(file);
+      preview.classList.remove("hidden");
+    });
+  });
+</script>
 {% endblock %}

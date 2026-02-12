@@ -186,12 +186,14 @@
 
           <div class="social-links">
             {% if user.phone_number %}
-              <span class="social-icon" title="Phone">📱</span>
+              <a href="tel:{{user.phone_number}}"><span class="social-icon" title="Phone">📱</span></a>
             {% endif %}
             {% if user.email %}
-              <span class="social-icon" title="Email">📧</span>
+              <a href="mailto:{{user.email}}"><span class="social-icon" title="Email">📧</span></a>
             {% endif %}
+            {% if user.whatsapp %}
             <span class="social-icon" title="WhatsApp">💬</span>
+            {% endif%}
           </div>
 
           <div class="mt-6 flex flex-col sm:flex-row gap-3">

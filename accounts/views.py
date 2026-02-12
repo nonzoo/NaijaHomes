@@ -6,14 +6,13 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, permission_required
 from Properties.models import Properties
 from django.contrib import messages
+from django.core.paginator import Paginator
 
 
 def authView(request):
-    # If already logged in, send them to the right dashboard
+    
     if request.user.is_authenticated:
-        if request.user.groups.filter(name="Agent").exists():
-            return redirect("agent_dashboard")
-        return redirect("customer_dashboard")
+        return redirect("my_profile")
 
     signup_form = SignUpForm()
     login_error = None
@@ -21,7 +20,7 @@ def authView(request):
     if request.method == "POST":
         action = request.POST.get("action")
 
-        # ---------- LOGIN ----------
+
         if action == "login":
             username = request.POST.get("username", "").strip()
             password = request.POST.get("password", "").strip()
@@ -36,7 +35,7 @@ def authView(request):
 
             login_error = "Invalid username or password."
 
-        # ---------- SIGNUP ----------
+
         elif action == "signup":
             signup_form = SignUpForm(request.POST)
             if signup_form.is_valid():
@@ -45,10 +44,22 @@ def authView(request):
 
                 group, _ = Group.objects.get_or_create(name=role)
                 user.groups.add(group)
+                if role == "Agent":
+                    AgentProfile.objects.create(
+                        user=user,
+                        
+                    )
+                    redirect_name = "my_profile"
+                else:
+                    CustomerProfile.objects.create(
+                        user=user,
+                        
+                    )
+                    redirect_name = "my_profile"
 
 
                 login(request, user)
-                return redirect('my_profile')
+                return redirect(redirect_name)
 
         # If action missing, just stay on page
 
@@ -80,11 +91,11 @@ def agent_dashboard(request):
 
 
 
-@login_required
-@permission_required('accounts.view_customerprofile', raise_exception=True)
-def customer_dashboard(request):
-    customer = get_object_or_404(CustomerProfile, user=request.user)
-    return render(request, "accounts/customer_dashboard.html", {'customer':customer})
+# @login_required
+# @permission_required('accounts.view_customerprofile', raise_exception=True)
+# def customer_dashboard(request):
+#     customer = get_object_or_404(CustomerProfile, user=request.user)
+#     return render(request, "accounts/customer_dashboard.html", {'customer':customer})
 
 
 @login_required
@@ -114,4 +125,28 @@ def update_profile(request):
     return render(request, "accounts/profile_edit.html", {"form": form})
 
 
- 
+def agentsView(request):
+    agents_list = AgentProfile.objects.all()
+    paginator = Paginator(agents_list, 8)  # 8 agents per page
+    page_number = request.GET.get('page')
+    agents = paginator.get_page(page_number)
+    return render(request, "accounts/agents.html", {"agents": agents})
+
+
+def agent_profile_view(request, agent_id):
+    """View a specific agent's public profile and their properties"""
+    agent = get_object_or_404(AgentProfile, user__id=agent_id)
+    properties_list = Properties.objects.filter(agent__id=agent_id)
+    featured_count = properties_list.filter(is_featured=True).count()
+    
+    # Pagination
+    paginator = Paginator(properties_list, 6)  # 6 properties per page
+    page_number = request.GET.get('page')
+    properties = paginator.get_page(page_number)
+    
+    return render(request, "accounts/agent_profile.html", {
+        'agent': agent,
+        'properties': properties,
+        'featured_count': featured_count,
+        'agent_user': agent.user
+    })

@@ -137,9 +137,14 @@
                     <a href="{% url 'frontpage' %}" class="text-gray-600 hover:text-emerald-700 font-medium">Home</a>
                     <a href="{% url 'property_list' %}"
                         class="text-gray-600 hover:text-emerald-700 font-medium">Properties</a>
-                    <a href="#" class="text-gray-600 hover:text-emerald-700 font-medium">Agents</a>
-                    <a href="#" class="text-gray-600 hover:text-emerald-700 font-medium">About</a>
-                    <a href="#" class="text-gray-600 hover:text-emerald-700 font-medium">Contact</a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'favorite_list' %}"
+                        class="text-gray-600 hover:text-emerald-700 font-medium flex items-center gap-1">
+                        Saved
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'agents_list' %}" class="text-gray-600 hover:text-emerald-700 font-medium">Agents</a>
+                    <a href="{% url 'about' %}" class="text-gray-600 hover:text-emerald-700 font-medium">About</a>
                 </div>
 
                 <!-- Desktop actions -->
@@ -148,9 +153,6 @@
                     {% if user.is_authenticated and user.is_agent %}
                     <a href="{% url 'agent_dashboard' %}"
                         class="px-4 py-2 text-emerald-700 font-semibold hover:bg-emerald-50 rounded-lg">Dashboard</a>
-                    {% elif user.is_authenticated and user.is_customer %}
-                    <a href="{% url 'customer_dashboard' %}"
-                        class="px-4 py-2 text-slate-700 font-semibold hover:bg-slate-50 rounded-lg">Dashboard</a>
                     {% endif %}
 
                     {% if user.is_authenticated %}
@@ -192,16 +194,18 @@
         <div class="p-5 space-y-4">
             <a href="{% url 'frontpage' %}" class="block font-semibold text-gray-800">Home</a>
             <a href="{% url 'property_list' %}" class="block font-semibold text-gray-800">Properties</a>
-            <a href="#" class="block font-semibold text-gray-800">Agents</a>
-            <a href="#" class="block font-semibold text-gray-800">About</a>
-            <a href="#" class="block font-semibold text-gray-800">Contact</a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'favorite_list' %}" class="block font-semibold text-slate-700 flex items-center gap-2">
+                Saved
+            </a>
+            {% endif %}
+            <a href="{% url 'agents_list' %}" class="block font-semibold text-gray-800">Agents</a>
+            <a href="{% url 'about' %}" class="block font-semibold text-gray-800">About Us</a>
 
             <hr />
 
             {% if user.is_authenticated and user.is_agent %}
             <a href="{% url 'agent_dashboard' %}" class="block font-semibold text-emerald-700">Dashboard</a>
-            {% elif user.is_authenticated and user.is_customer %}
-            <a href="{% url 'customer_dashboard' %}" class="block font-semibold text-slate-700">Dashboard</a>
             {% endif %}
 
             {% if user.is_authenticated %}
@@ -210,7 +214,6 @@
                 Profile
             </a>
 
-
             <a href="{% url 'logout' %}" class="block font-semibold text-red-600">Logout</a>
             {% else %}
             <a href="{% url 'auth' %}" class="block font-semibold text-emerald-700">Login</a>
@@ -218,7 +221,14 @@
         </div>
     </div>
 
-    <main class="flex-grow">{% block content %} {% endblock %}</main>
+    <main class="flex-grow w-full px-4 sm:px-6 lg:px-8 py-6">
+  <div class="max-w-7xl mx-auto w-full">
+    {% block content %}
+
+    {% endblock %}
+  </div>
+</main>
+
 
     <!--Footer-->
     <footer class="bg-gray-900 text-gray-300 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
@@ -243,33 +253,32 @@
                     <h4 class="font-semibold text-white mb-4">Quick Links</h4>
                     <ul class="space-y-2 text-sm">
                         <li>
-                            <a href="#" class="hover:text-amber-400">Buy Property</a>
+                            <a href="{% url 'property_list' %}?property_type=Sale" class="hover:text-amber-400">Buy Property</a>
                         </li>
                         <li>
-                            <a href="#" class="hover:text-amber-400">Rent Property</a>
+                            <a href="{% url 'property_list' %}?property_type=Rent" class="hover:text-amber-400">Rent Property</a>
                         </li>
+                        {% if user.is_authenticated and user.is_agent %}
                         <li>
-                            <a href="#" class="hover:text-amber-400">Short Let</a>
+                            <a href="{% url 'create_property' %}" class="hover:text-amber-400">List Property</a>
                         </li>
-                        <li>
-                            <a href="#" class="hover:text-amber-400">List Property</a>
-                        </li>
+                        {% endif %}
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-semibold text-white mb-4">Locations</h4>
+                    <h4 class="font-semibold text-white mb-4">States</h4>
                     <ul class="space-y-2 text-sm">
                         <li>
-                            <a href="#" class="hover:text-amber-400">Lagos</a>
+                            <a href="{% url 'property_list' %}?state=Lagos" class="hover:text-amber-400">Lagos</a>
                         </li>
                         <li>
-                            <a href="#" class="hover:text-amber-400">Abuja</a>
+                            <a href="{% url 'property_list' %}?state=FCT Abuja" class="hover:text-amber-400">Abuja</a>
                         </li>
                         <li>
-                            <a href="#" class="hover:text-amber-400">Port Harcourt</a>
+                            <a href="{% url 'property_list' %}?state=Port Harcourt" class="hover:text-amber-400">Port Harcourt</a>
                         </li>
                         <li>
-                            <a href="#" class="hover:text-amber-400">Ibadan</a>
+                            <a href="{% url 'property_list' %}?state=Delta" class="hover:text-amber-400">Delta</a>
                         </li>
                     </ul>
                 </div>

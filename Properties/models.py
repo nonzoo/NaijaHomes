@@ -8,11 +8,89 @@ type = (
     ('Sale', 'Sale'),
 )
 
+ABIA = 'Abia'
+ADAMAWA = 'Adamawa'
+AKWA_IBOM = 'Akwa Ibom'
+ANAMBRA = 'Anambra'
+BAUCHI = 'Bauchi'
+BAYELSA = 'Bayelsa'
+BENUE = 'Benue'
+BORNO = 'Borno'
+CROSS_RIVER = 'Cross River'
+DELTA = 'Delta'
+EBONYI = 'Ebonyi'
+EDO = 'Edo'
+EKITI = 'Ekiti'
+ENUGU = 'Enugu'
+GOMBE = 'Gombe'
+IMO = 'Imo'
+JIGAWA = 'Jigawa'
+KADUNA = 'Kaduna'
+KANO = 'Kano'
+KATSINA = 'Katsina'
+KEBBI = 'Kebbi'
+KOGI = 'Kogi'
+KWARA = 'Kwara'
+LAGOS = 'Lagos'
+NASARAWA = 'Nasarawa'
+NIGER = 'Niger'
+OGUN = 'Ogun'
+ONDO = 'Ondo'
+OSUN = 'Osun'
+OYO = 'Oyo'
+PLATEAU = 'Plateau'
+RIVERS = 'Rivers'
+SOKOTO = 'Sokoto'
+TARABA = 'Taraba'
+YOBE = 'Yobe'
+ZAMFARA = 'Zamfara'
+FCT_ABUJA = 'FCT Abuja'
+
+STATE_CHOICES = (
+    (ABIA, 'Abia'),
+    (ADAMAWA, 'Adamawa'),
+    (AKWA_IBOM, 'Akwa Ibom'),
+    (ANAMBRA, 'Anambra'),
+    (BAUCHI, 'Bauchi'),
+    (BAYELSA, 'Bayelsa'),
+    (BENUE, 'Benue'),
+    (BORNO, 'Borno'),
+    (CROSS_RIVER, 'Cross River'),
+    (DELTA, 'Delta'),
+    (EBONYI, 'Ebonyi'),
+    (EDO, 'Edo'),
+    (EKITI, 'Ekiti'),
+    (ENUGU, 'Enugu'),
+    (GOMBE, 'Gombe'),
+    (IMO, 'Imo'),
+    (JIGAWA, 'Jigawa'),
+    (KADUNA, 'Kaduna'),
+    (KANO, 'Kano'),
+    (KATSINA, 'Katsina'),
+    (KEBBI, 'Kebbi'),
+    (KOGI, 'Kogi'),
+    (KWARA, 'Kwara'),
+    (LAGOS, 'Lagos'),
+    (NASARAWA, 'Nasarawa'),
+    (NIGER, 'Niger'),
+    (OGUN, 'Ogun'),
+    (ONDO, 'Ondo'),
+    (OSUN, 'Osun'),
+    (OYO, 'Oyo'),
+    (PLATEAU, 'Plateau'),
+    (RIVERS, 'Rivers'),
+    (SOKOTO, 'Sokoto'),
+    (TARABA, 'Taraba'),
+    (YOBE, 'Yobe'),
+    (ZAMFARA, 'Zamfara'),
+    (FCT_ABUJA, 'FCT Abuja'),
+)
 
 class Properties(models.Model):
     title = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=12, decimal_places=2)
     address = models.CharField(max_length=255, blank=True, null=True)
+    state = models.CharField(max_length=100, choices=STATE_CHOICES, blank=True, null=True)
     agent = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     bedrooms = models.IntegerField(null=True,blank=True)
     living_rooms = models.IntegerField(null=True,blank=True)
@@ -27,6 +105,8 @@ class Properties(models.Model):
     def formatted_price(self):
         return intcomma(self.price)
     
+    verbose_name = "Property"
+    verbose_name_plural = "Properties"
 
     def image_url(self):
         if self.image and hasattr(self.image, 'url'):

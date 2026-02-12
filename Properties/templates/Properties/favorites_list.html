@@ -1,0 +1,233 @@
+{% extends 'Properties/base.html' %}
+{% load number_format %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-gradient relative overflow-hidden py-8 sm:py-12">
+  <div class="absolute inset-0 pattern-bg opacity-30"></div>
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h1 id="page-title" class="font-display text-3xl sm:text-4xl font-bold text-white mb-2">Saved Properties</h1>
+    <p class="text-emerald-100">Your favorite properties in one place</p>
+  </div>
+</section>
+
+<!-- Favorites Content -->
+<section class="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 min-h-screen">
+  <div class="max-w-7xl mx-auto">
+    
+    {% if favorites %}
+      <!-- Results Header -->
+      <div class="flex items-center justify-between mb-8">
+        <h2 class="font-display text-2xl font-bold text-gray-900">
+          Your Saved Properties
+        </h2>
+        <span class="text-sm text-gray-600">
+          <span class="font-semibold">{{ favorites.paginator.count }}</span>
+          <span>Propert{% if favorites.paginator.count != 1 %}ies{% else %}y{% endif %} Saved</span>
+        </span>
+      </div>
+
+      <!-- Favorites Grid -->
+      <div id="favorites-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 lg:gap-6">
+        {% for favorite in favorites %}
+        <div class="favorite-card bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all" data-favorite-id="{{ favorite.property.id }}">
+          <div class="relative h-48 overflow-hidden">
+            {% if favorite.property.image %}
+            <img src="{{ favorite.property.image.url }}" alt="{{ favorite.property.title }}" loading="lazy"
+              class="property-image w-full h-full object-cover transition-transform duration-500" />
+            {% else %}
+            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+              <span class="text-gray-400">No image</span>
+            </div>
+            {% endif %}
+          
+            <div class="absolute top-3 left-3 flex gap-2">
+              {% if favorite.property.property_type == "Rent" %}
+              <span
+                class="px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full">{{favorite.property.property_type}}</span>
+
+              {% else %}
+              <span
+                class="px-3 py-1 bg-emerald-600 text-white text-xs font-bold rounded-full">{{favorite.property.property_type}}</span>
+              {% endif %}
+              {% if favorite.property.is_featured %}
+              <span class="px-2 py-1 bg-amber-500 text-white text-xs font-bold rounded-full">Featured</span>
+              {% endif %}
+            </div>
+
+            <!-- Remove from Favorites Button -->
+            <button data-property-id="{{ favorite.property.id }}" class="favorite-btn absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-colors bg-emerald-600">
+              <svg class="w-5 h-5 text-white fill-white" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="p-4">
+            <div class="flex items-center gap-1 text-gray-500 text-xs mb-2">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {{ favorite.property.address }}, {{ favorite.property.state }}
+            </div>
+            <h3 class="font-display text-base font-bold text-gray-900 mb-2 line-clamp-2">{{ favorite.property.title }}</h3>
+            <div class="flex items-center gap-3 text-gray-600 text-xs mb-3">
+              <span class="flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                {{ favorite.property.bedrooms }} Bed{% if favorite.property.bedrooms != 1 %}s{% endif %}
+              </span>
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+              <span class="text-lg font-bold text-emerald-700">₦{{ favorite.property.price|abbreviate_number }}</span>
+              <a href="{% url 'property_detail' pk=favorite.property.id %}"
+                class="px-3 py-1.5 bg-emerald-700 text-white font-semibold rounded-lg hover:bg-emerald-800 transition-colors text-xs">
+                View
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if favorites.has_other_pages %}
+      <div class="flex items-center justify-center gap-2 mt-8">
+        {% if favorites.has_previous %}
+        <a href="?page=1" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-sm">First</a>
+        <a href="?page={{ favorites.previous_page_number }}" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-sm">Previous</a>
+        {% endif %}
+
+        {% for num in favorites.paginator.page_range %}
+          {% if favorites.number == num %}
+          <span class="px-3 py-2 bg-emerald-700 text-white rounded-lg font-semibold text-sm">{{ num }}</span>
+          {% elif num > favorites.number|add:'-3' and num < favorites.number|add:'3' %}
+          <a href="?page={{ num }}" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-sm">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if favorites.has_next %}
+        <a href="?page={{ favorites.next_page_number }}" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-sm">Next</a>
+        <a href="?page={{ favorites.paginator.num_pages }}" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 text-sm">Last</a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+    {% else %}
+      <!-- Empty State -->
+      <div class="flex flex-col items-center justify-center min-h-[400px] bg-white rounded-xl border-2 border-dashed border-gray-300 p-8 text-center">
+        <svg class="w-20 h-20 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+        
+        <h3 class="font-display text-2xl font-bold text-gray-900 mb-2">No Saved Properties Yet</h3>
+        <p class="text-gray-600 mb-8 max-w-sm">You haven't saved any properties yet. Start exploring and save your favorite properties!</p>
+        
+        <a href="{% url 'property_list' %}"
+          class="inline-flex items-center gap-2 px-6 py-3 bg-emerald-700 text-white font-semibold rounded-lg hover:bg-emerald-800 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          Browse Properties
+        </a>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+<style>
+  .font-display {
+    font-family: 'Playfair Display', serif;
+  }
+
+  .font-body {
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .hero-gradient {
+    background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 50%, #1a472a 100%);
+  }
+
+  .pattern-bg {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .property-image {
+    transition: transform 0.3s ease;
+  }
+
+  .property-image:hover {
+    transform: scale(1.05);
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+  }
+</style>
+
+<script>
+  // Handle removing favorites
+  document.querySelectorAll('.favorite-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const propertyId = this.dataset.propertyId;
+      
+      fetch(`/favorite/toggle/${propertyId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken')
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'removed') {
+          // Remove the card from the grid
+          const card = document.querySelector(`[data-favorite-id="${propertyId}"]`);
+          if (card) {
+            card.style.transition = 'opacity 0.3s ease';
+            card.style.opacity = '0';
+            setTimeout(() => {
+              card.remove();
+              
+              // Check if grid is empty
+              const grid = document.getElementById('favorites-grid');
+              if (grid && grid.children.length === 0) {
+                location.reload();
+              }
+            }, 300);
+          }
+        }
+      })
+      .catch(error => console.error('Error:', error));
+    });
+  });
+
+  // Helper function to get CSRF token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+</script>
+
+{% endblock %}

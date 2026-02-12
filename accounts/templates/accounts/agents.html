@@ -1,0 +1,74 @@
+{% extends 'Properties/base.html' %}
+
+{% block content %}
+<section class="hero-gradient relative overflow-hidden py-8 sm:py-12">
+  <div class="absolute inset-0 pattern-bg opacity-30"></div>
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h1 id="page-title" class="font-display text-3xl sm:text-4xl font-bold text-white mb-2">Our Agents</h1>
+    <p class="text-emerald-100">Meet the experts behind our listings</p>
+  </div>
+</section>
+<section class="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 min-h-screen">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header with count -->
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="font-display text-2xl font-bold text-gray-900">All Agents</h2>
+      {% if agents.paginator.count %}
+      <span class="text-sm text-gray-600">
+        <span class="font-semibold">{{ agents.paginator.count }}</span>
+        <span>Agent{{ agents.paginator.count|pluralize }}</span>
+      </span>
+      {% endif %}
+    </div>
+
+    {% if agents %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+      {% for agent in agents %}
+      <div class="bg-white rounded-xl shadow-sm p-6 text-center">
+        <div class="w-24 h-24 mx-auto mb-4">
+          {% if agent.user.profile_image %}
+          <img src="{{ agent.user.profile_image.url }}" alt="{{ agent.user.username }}'s profile picture" class="w-full h-full object-cover rounded-full">
+          {% else %}
+          <div class="w-full h-full bg-gray-200 flex items-center justify-center rounded-full">
+            <span class="text-gray-400">No image</span>
+          </div>
+          {% endif %}
+        </div>
+        <h3 class="font-display text-lg font-bold text-gray-900 mb-1">{{ agent.user.first_name }} {{ agent.user.last_name }}</h3>
+        <p class="text-sm text-gray-600 mb-2">{{ agent.user.email }}</p>
+        <a href="{% url 'agent_profile' agent.user.id %}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 text-white font-semibold rounded-xl hover:bg-emerald-800 transition-colors text-sm">
+          View Profile
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if agents.has_other_pages %}
+    <div class="flex items-center justify-center gap-2 mt-8">
+      {% if agents.has_previous %}
+      <a href="?page=1" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">First</a>
+      <a href="?page={{ agents.previous_page_number }}" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">Previous</a>
+      {% endif %}
+
+      {% for num in agents.paginator.page_range %}
+        {% if agents.number == num %}
+        <span class="px-3 py-2 bg-emerald-700 text-white rounded-lg font-semibold">{{ num }}</span>
+        {% elif num > agents.number|add:'-3' and num < agents.number|add:'3' %}
+        <a href="?page={{ num }}" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if agents.has_next %}
+      <a href="?page={{ agents.next_page_number }}" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">Next</a>
+      <a href="?page={{ agents.paginator.num_pages }}" class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">Last</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <p class="text-center text-gray-600">No agents found.</p>
+    {% endif %}
+  </div>
+
+  {% endblock %}

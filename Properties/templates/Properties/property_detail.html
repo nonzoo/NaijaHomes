@@ -152,7 +152,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
-                            {{ property.address }}
+                            {{ property.address }}, {{property.state }} State
                         </p>
                     </div>
                 </div>
@@ -315,17 +315,23 @@
 {% if similar_properties %}
 <section class="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-white border-t border-gray-200">
     <div class="max-w-6xl mx-auto">
-        <h2 class="font-display text-3xl font-bold text-gray-900 mb-8">Similar Properties</h2>
+        <h2 class="font-display text-3xl font-bold text-gray-900 mb-8">Similar Properties in {{ property.state }}</h2>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {% for similar in similar_properties %}
             <div class="bg-stone-50 rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all">
-                <img src="{{ similar.image_url }}" alt="Similar property" class="w-full h-48 object-cover">
+                {% if similar.image_url %}
+                <img src="{{ similar.image_url }}" alt="{{ similar.title }}" class="w-full h-48 object-cover">
+                {% else %}
+                <div class="w-full h-48 bg-gray-300 flex items-center justify-center">
+                    <span class="text-gray-500">No image</span>
+                </div>
+                {% endif %}
                 <div class="p-4">
                     <h3 class="font-display text-lg font-bold text-gray-900 mb-2">{{ similar.title }}</h3>
-                    <p class="text-gray-600 text-sm mb-3">{{ similar.address }}</p>
+                    <p class="text-gray-600 text-sm mb-3">{{ similar.address }}, {{ similar.state }}</p>
                     <div class="flex items-center justify-between">
-                        <span class="text-2xl font-bold text-emerald-700">₦{{ similar.price }}</span>
+                        <span class="text-xl font-bold text-emerald-700">₦{{ similar.formatted_price }}</span>
                         <a href="{% url 'property_detail' similar.id %}">
                             <button
                                 class="px-3 py-1.5 bg-emerald-700 text-white font-semibold rounded-lg text-sm hover:bg-emerald-800">View</button>

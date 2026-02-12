@@ -63,7 +63,7 @@
             </div>
           {% endif %}
 
-          {# Basic fields (keep your form, but make it look good) #}
+          
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
 
             {% for field in form %}
@@ -71,7 +71,7 @@
                 <div class="sm:col-span-2">
                   <label class="block text-sm font-semibold text-gray-900 mb-2">{{ field.label }}</label>
                   {{ field }}
-                  {% if field.help_text %}<p class="text-xs text-gray-500 mt-2">{{ field.help_text }}</p>{% endif %}
+                  
                   {% for error in field.errors %}
                     <p class="text-sm text-red-600 mt-2">{{ error }}</p>
                   {% endfor %}
@@ -82,12 +82,7 @@
                     {{ field.label }} {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
                   </label>
 
-
                   {{ field }}
-
-                  {% if field.help_text %}
-                    <p class="text-xs text-gray-500 mt-2">{{ field.help_text }}</p>
-                  {% endif %}
 
                   {% for error in field.errors %}
                     <p class="text-sm text-red-600 mt-2">{{ error }}</p>

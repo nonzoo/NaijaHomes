@@ -15,7 +15,7 @@
 <section class="bg-white border-b border-gray-200 top-16 z-40">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <form method="get" class="space-y-4">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         <!-- Search Query -->
         <div>
           <label class="block text-xs font-semibold text-gray-600 mb-2 uppercase">Search</label>
@@ -35,6 +35,51 @@
           <label class="block text-xs font-semibold text-gray-600 mb-2 uppercase">Max Price (₦)</label>
           <input type="number" name="max_price" placeholder="Maximum" value="{{ request.GET.max_price }}"
             class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm" />
+        </div>
+
+        <!-- State -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-600 mb-2 uppercase">State</label>
+          <select name="state" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+            <option value="">All States</option>
+            <option value="Abia" {% if request.GET.state == "Abia" %}selected{% endif %}>Abia</option>
+            <option value="Adamawa" {% if request.GET.state == "Adamawa" %}selected{% endif %}>Adamawa</option>
+            <option value="Akwa Ibom" {% if request.GET.state == "Akwa Ibom" %}selected{% endif %}>Akwa Ibom</option>
+            <option value="Anambra" {% if request.GET.state == "Anambra" %}selected{% endif %}>Anambra</option>
+            <option value="Bauchi" {% if request.GET.state == "Bauchi" %}selected{% endif %}>Bauchi</option>
+            <option value="Bayelsa" {% if request.GET.state == "Bayelsa" %}selected{% endif %}>Bayelsa</option>
+            <option value="Benue" {% if request.GET.state == "Benue" %}selected{% endif %}>Benue</option>
+            <option value="Borno" {% if request.GET.state == "Borno" %}selected{% endif %}>Borno</option>
+            <option value="Cross River" {% if request.GET.state == "Cross River" %}selected{% endif %}>Cross River</option>
+            <option value="Delta" {% if request.GET.state == "Delta" %}selected{% endif %}>Delta</option>
+            <option value="Ebonyi" {% if request.GET.state == "Ebonyi" %}selected{% endif %}>Ebonyi</option>
+            <option value="Edo" {% if request.GET.state == "Edo" %}selected{% endif %}>Edo</option>
+            <option value="Ekiti" {% if request.GET.state == "Ekiti" %}selected{% endif %}>Ekiti</option>
+            <option value="Enugu" {% if request.GET.state == "Enugu" %}selected{% endif %}>Enugu</option>
+            <option value="Gombe" {% if request.GET.state == "Gombe" %}selected{% endif %}>Gombe</option>
+            <option value="Imo" {% if request.GET.state == "Imo" %}selected{% endif %}>Imo</option>
+            <option value="Jigawa" {% if request.GET.state == "Jigawa" %}selected{% endif %}>Jigawa</option>
+            <option value="Kaduna" {% if request.GET.state == "Kaduna" %}selected{% endif %}>Kaduna</option>
+            <option value="Kano" {% if request.GET.state == "Kano" %}selected{% endif %}>Kano</option>
+            <option value="Katsina" {% if request.GET.state == "Katsina" %}selected{% endif %}>Katsina</option>
+            <option value="Kebbi" {% if request.GET.state == "Kebbi" %}selected{% endif %}>Kebbi</option>
+            <option value="Kogi" {% if request.GET.state == "Kogi" %}selected{% endif %}>Kogi</option>
+            <option value="Kwara" {% if request.GET.state == "Kwara" %}selected{% endif %}>Kwara</option>
+            <option value="Lagos" {% if request.GET.state == "Lagos" %}selected{% endif %}>Lagos</option>
+            <option value="Nasarawa" {% if request.GET.state == "Nasarawa" %}selected{% endif %}>Nasarawa</option>
+            <option value="Niger" {% if request.GET.state == "Niger" %}selected{% endif %}>Niger</option>
+            <option value="Ogun" {% if request.GET.state == "Ogun" %}selected{% endif %}>Ogun</option>
+            <option value="Ondo" {% if request.GET.state == "Ondo" %}selected{% endif %}>Ondo</option>
+            <option value="Osun" {% if request.GET.state == "Osun" %}selected{% endif %}>Osun</option>
+            <option value="Oyo" {% if request.GET.state == "Oyo" %}selected{% endif %}>Oyo</option>
+            <option value="Plateau" {% if request.GET.state == "Plateau" %}selected{% endif %}>Plateau</option>
+            <option value="Rivers" {% if request.GET.state == "Rivers" %}selected{% endif %}>Rivers</option>
+            <option value="Sokoto" {% if request.GET.state == "Sokoto" %}selected{% endif %}>Sokoto</option>
+            <option value="Taraba" {% if request.GET.state == "Taraba" %}selected{% endif %}>Taraba</option>
+            <option value="Yobe" {% if request.GET.state == "Yobe" %}selected{% endif %}>Yobe</option>
+            <option value="Zamfara" {% if request.GET.state == "Zamfara" %}selected{% endif %}>Zamfara</option>
+            <option value="FCT Abuja" {% if request.GET.state == "FCT Abuja" %}selected{% endif %}>FCT Abuja</option>
+          </select>
         </div>
 
         <div>
@@ -136,7 +181,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            {{ property.address }}
+            {{ property.address }}, {{ property.state }}
           </div>
           <h3 class="font-display text-base font-bold text-gray-900 mb-2 line-clamp-2">{{ property.title }}</h3>
           <div class="flex items-center gap-3 text-gray-600 text-xs mb-3">
