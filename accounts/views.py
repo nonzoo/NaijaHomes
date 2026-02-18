@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 
 
+
 def authView(request):
     
     if request.user.is_authenticated:
@@ -73,7 +74,29 @@ def authView(request):
     )
 
 
+def selectRoleView(request):
+    if not request.user.is_authenticated:
+        return redirect("auth")
+    
+    # If user already has a profile, they're a returning user → go to profile
+    if request.user.is_agent or request.user.is_customer:
+        return redirect("my_profile")
 
+    # New user → show role selection
+    if request.method == "POST":
+        role = request.POST.get("role")
+        if role in ["Agent", "Customer"]:
+            group, _ = Group.objects.get_or_create(name=role)
+            request.user.groups.add(group)
+            
+            if role == "Agent":
+                AgentProfile.objects.create(user=request.user)
+            else:
+                CustomerProfile.objects.create(user=request.user)
+            
+            return redirect("my_profile")
+    
+    return render(request, "accounts/select_role.html")
 
 def logoutView(request):
     logout(request)
@@ -100,6 +123,13 @@ def agent_dashboard(request):
 
 @login_required
 def profile_view(request):
+    # if not hasattr(request.user, 'agentprofile') or not hasattr(request.user, 'customerprofile'):
+    #     return redirect("select_role")
+
+
+    if not request.user.is_agent and not request.user.is_customer:
+        return redirect("select_role")
+    
     if request.user.groups.filter(name='Agent').exists():
         agent = get_object_or_404(AgentProfile, user=request.user)
         context = {'agent':agent}

@@ -1,5 +1,5 @@
-{# templates/accounts/auth.html #}
 {% extends "Properties/base.html" %}
+
 
 {% block content %}
 <section class="bg-stone-50 min-h-screen">
@@ -89,7 +89,13 @@
                                 Sign In
                             </button>
 
-                            <p class="text-center text-sm text-gray-600">
+                            <!-- google login -->
+                            <a href="/auth/google/login/" class="btn-google w-full py-3 sm:py-4 font-bold rounded-xl text-lg mt-4 inline-flex items-center justify-center gap-2">
+                                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="w-5 h-5" />
+                                Continue with Google
+                            </a>
+
+                            <p class="text-center text-sm text-gray-600 mt-6">
                                 Don't have an account?
                                 <button type="button" class="text-emerald-700 font-bold hover:text-emerald-900"
                                     onclick="showSignUp()">
@@ -150,6 +156,12 @@
                                 </button>
                             </p>
                         </form>
+                        
+
+<a href="/auth/google/login/" class="btn-google w-full py-3 sm:py-4 font-bold rounded-xl text-lg mt-4 inline-flex items-center justify-center gap-2">
+    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="w-5 h-5" />
+    Continue with Google
+</a>
                     </div>
 
                 </div>
@@ -180,29 +192,7 @@
         background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     }
 
-    .btn-primary {
-        background: linear-gradient(135deg, #d4af37 0%, #c9a227 100%);
-        transition: all 0.3s ease;
-    }
 
-    .btn-primary:hover {
-        background: linear-gradient(135deg, #e5c158 0%, #d4af37 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(212, 175, 55, 0.35);
-    }
-
-    .btn-secondary {
-        background: linear-gradient(135deg, #047857 0%, #059669 100%);
-        transition: all 0.3s ease;
-    }
-
-    .btn-secondary:hover {
-        background: linear-gradient(135deg, #065f46 0%, #047857 100%);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(4, 120, 87, 0.3);
-    }
-
-    /* Make default Django form fields look like your theme */
     .form-input,
     input[type="text"],
     input[type="email"],

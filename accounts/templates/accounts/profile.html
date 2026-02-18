@@ -180,9 +180,11 @@
             {% endif %}
           </p>
 
+          {% if user.is_agent %}
           <p class="text-emerald-100 mb-5 max-w-2xl leading-relaxed">
             {{user.agent_profile.bio|default:"This user hasn't added a bio yet."}}
           </p>
+          {% endif %}
 
           <div class="social-links">
             {% if user.phone_number %}

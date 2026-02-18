@@ -5,6 +5,8 @@ from django.contrib.auth.models import AbstractUser
 class CustomUser(AbstractUser):
     phone_number = models.CharField(max_length=20, null=True, blank=True)
     profile_image = models.ImageField(upload_to="profile_pic/", blank=True,null=True)
+
+    
     @property
     def is_agent(self):
         return self.groups.filter(name='Agent').exists()

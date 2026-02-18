@@ -1,0 +1,20 @@
+{% extends "Properties/base.html" %}
+
+{% block content %}
+
+<section class="min-h-screen bg-stone-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-xl p-10 w-full max-w-md">
+        <h2 class="font-display text-3xl font-bold text-gray-900 mb-6 text-center">Choose your role</h2>
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            <button type="submit" name="role" value="Agent" class="btn-primary w-full py-3 text-lg font-bold rounded-xl">
+                I'm an Agent
+            </button>
+            <button type="submit" name="role" value="Customer" class="btn-secondary w-full py-3 text-lg font-bold rounded-xl">
+                I'm a Customer
+            </button>
+        </form>
+    </div>
+</section>
+
+{% endblock %}
